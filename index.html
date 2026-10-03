@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Retirement Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#F1F4F6;--card:#fff;--tx:#14232F;--mu:#5B6B77;--bd:#D9E0E5;--ac:#0F766E;--ok:#15803D;--okbg:#E4F4EA;--bad:#B42318;--badbg:#FBE9E7;--c1:#6D5BD0;--c2:#2A9CC4;--c3:#D97706;--c4:#0F766E;--c5:#B45FA8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E161C;--card:#162229;--tx:#E8EEF2;--mu:#93A3AE;--bd:#27363F;--ac:#35B5A9;--ok:#5BD08A;--okbg:#12301F;--bad:#FF8A7D;--badbg:#3A1A17;--c1:#9C8CF5;--c2:#5CC0E6;--c3:#F5A33D;--c4:#35B5A9;--c5:#D890CC}}
+:root[data-theme="dark"]{--bg:#0E161C;--card:#162229;--tx:#E8EEF2;--mu:#93A3AE;--bd:#27363F;--ac:#35B5A9;--ok:#5BD08A;--okbg:#12301F;--bad:#FF8A7D;--badbg:#3A1A17;--c1:#9C8CF5;--c2:#5CC0E6;--c3:#F5A33D;--c4:#35B5A9;--c5:#D890CC}
+*{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
+h1,h2{font-family:"Source Serif 4",Georgia,serif;margin:0}
+h1{font-size:32px;line-height:1.1}h2{font-size:20px;margin-bottom:12px}
+.sub{color:var(--mu);margin:4px 0 18px}
+.banner{border-radius:12px;padding:16px 18px;font-size:17px;font-weight:500;margin-bottom:18px;border:1px solid}
+.banner.ok{background:var(--okbg);color:var(--ok);border-color:var(--ok)}.banner.bad{background:var(--badbg);color:var(--bad);border-color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+.fld{display:grid;grid-template-columns:1fr 112px 112px;gap:8px;align-items:center;margin-bottom:8px}
+.fld.one{grid-template-columns:1fr 112px}
+.fld span{font-size:14px}
+.hd{display:grid;grid-template-columns:1fr 112px 112px;gap:8px;font-size:12px;color:var(--mu);margin-bottom:6px;font-weight:600}
+.hd.one{grid-template-columns:1fr 112px}
+input[type=number],input[type=text]{font:inherit;font-size:16px;width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);min-width:0}
+input:focus,button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.u{position:relative}.u input{padding-right:22px}.u i{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--mu);font-size:13px;pointer-events:none}
+.sec{font-size:12px;font-weight:600;color:var(--ac);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+@media(max-width:900px){.charts{grid-template-columns:1fr}}
+.cv{position:relative;height:300px}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px;font-size:14px}
+label.ck{display:flex;gap:6px;align-items:center}
+button{font:inherit;font-weight:600;padding:9px 16px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer;min-height:42px}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:980px;font-variant-numeric:tabular-nums;font-size:13px}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{position:sticky;top:0;background:var(--card);font-size:12px;color:var(--mu);font-weight:600;white-space:normal;vertical-align:bottom}
+td:first-child,th:first-child{text-align:left;font-weight:600}
+tr.ret td{background:color-mix(in srgb,var(--ac) 7%,transparent)}
+td.neg{color:var(--bad)}
+td.nt{text-align:left;min-width:160px}td.nt input{padding:4px 6px;font-size:13px}
+#pt{display:none}
+.pbar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+button.p{background:var(--ac);border-color:var(--ac);color:#fff}
+@media print{
+  html{padding:0}
+  body{background:#fff;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  main{max-width:none;padding:0}
+  .pbar,.sub,#reset,label.ck{display:none!important}
+  #pt{display:block;font-family:"Source Serif 4",Georgia,serif;font-size:20px;font-weight:700;margin:0 0 8px}
+  h1{display:none}h2{font-size:15px;margin-bottom:6px}
+  .banner{padding:8px 10px;font-size:13px;margin-bottom:10px}
+  .card{break-inside:avoid;padding:10px;margin-bottom:8px}
+  .grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .grid .card:nth-child(3){grid-column:1/-1}
+  .fld,.hd{grid-template-columns:1fr 66px 66px;gap:6px;margin-bottom:4px}
+  .fld.one,.hd.one{grid-template-columns:1fr 66px}
+  .fld span{font-size:11px}
+  input[type=number],input[type=text]{font-size:11px;padding:3px 5px;border-color:#bbb;background:#fff}
+  .charts{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
+  .cv{height:230px}
+  .sec{margin:8px 0 4px}
+  .tw{overflow:visible;border:0}
+  table{min-width:0;font-size:9.5px}
+  th,td{padding:3px 5px}th{position:static}
+  tr{break-inside:avoid}
+  td.nt{min-width:80px}td.nt input{border:0;padding:0;font-size:9.5px}
+  body[data-print="charts"] .s-tb{display:none}
+  .s-tb{break-before:page}
+}
+ul{margin:0;padding-left:20px;color:var(--mu)}li{margin:3px 0}
+</style></head><body>
+<style id="pg"></style>
+<main>
+<h1>Retirement Planner</h1>
+<p class="sub">Change any number and the whole plan recalculates. Your entries are saved in this browser.</p>
+<div class="pbar"><button class="p" data-pm="charts">Print inputs &amp; charts</button><button data-pm="all">Print inputs, charts &amp; year-by-year</button></div>
+<div id="pt"></div>
+<div id="banner" class="banner" role="status"></div>
+<div class="grid">
+  <section class="card"><h2>Savings &amp; income now</h2><div id="g1"></div></section>
+  <section class="card"><h2>Post retirement</h2><div id="g2"></div></section>
+  <section class="card"><h2>Additional assets</h2><div id="g3"></div>
+    <div class="sec">Notes</div>
+    <ul><li>Income replacement uses primary income. A value of 200 or less is a percent; above 200 is dollars per year.</li><li>Replacement income, Social Security and real estate grow with inflation.</li><li>Other assets use the post-retirement investment return.</li></ul></section>
+</div>
+<section class="card s-ch" style="margin-bottom:18px">
+  <div class="row"><h2 style="margin:0">Charts</h2>
+    <label class="ck"><input type="checkbox" id="incRet" checked> Include retirement assets</label>
+    <label class="ck"><input type="checkbox" id="incOth" checked> Include other assets</label></div>
+  <div class="charts">
+    <div><div class="sec" style="margin-top:0">Savings and net worth by age ($ thousands)</div><div class="cv"><canvas id="c1"></canvas></div></div>
+    <div><div class="sec" style="margin-top:0">Retirement income sources by age ($ thousands)</div><div class="cv"><canvas id="c2"></canvas></div></div>
+  </div>
+</section>
+<section class="card s-tb">
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Year-by-year details</h2><button id="reset">Reset to starting values</button></div>
+  <div class="tw"><table><thead><tr id="th"></tr></thead><tbody id="tb"></tbody></table></div>
+</section>
+</main>
+<script>
+const DEF={age:61,sAge:0,inc:160000,sInc:0,incUp:0,sIncUp:0,bal:800000,sBal:0,sav:20000,sSav:0,savUp:2,sSavUp:0,pre:6,
+pen:65000,sPen:0,penUp:0,sPenUp:0,ret:62,sRet:56,ss:30000,sSs:0,repl:80,yrs:30,post:5,infl:2,oth:150000,home:400000};
+const G1=[['Current age','age','n','sAge'],['Annual income','inc','$','sInc'],['Income increases','incUp','%','sIncUp'],['Retirement balance','bal','$','sBal'],['Annual savings','sav','$','sSav'],['Annual increases','savUp','%','sSavUp'],['Investment return','pre','%']];
+const G2=[['Annual pension benefit','pen','$','sPen'],['Annual pension increases','penUp','%','sPenUp'],['Desired retirement age','ret','n','sRet'],['Social Security','ss','$','sSs'],['Income replacement (% or $)','repl','n'],['Years of retirement income','yrs','n'],['Investment return','post','%']];
+const G3=[['Annual inflation','infl','%'],['Other investments','oth','$'],['Real estate - home','home','$']];
+/*CALC*/
+function calc(p){
+  const pc=x=>(+x||0)/100,N=x=>+x||0;
+  const cur=N(p.age),ret=N(p.ret),sRet=N(p.sRet),n=Math.max(1,Math.round(N(p.yrs)+(ret-cur)));
+  const infl=pc(p.infl),pre=pc(p.pre),post=pc(p.post);
+  const rep=N(p.repl)<=200?pc(p.repl)*N(p.inc):N(p.repl);
+  const rows=[];let prev=null;
+  for(let i=0;i<n;i++){
+    const age=cur+i,sa=N(p.sAge)+i,before=age<ret,after=!before;
+    const beforeS=age<sRet+cur-N(p.sAge),afterS=!beforeS;
+    const r={age};
+    r.sal=i?(before?prev.sal*(1+pc(p.incUp)):0):N(p.inc);
+    r.salS=i?(beforeS?prev.salS*(1+pc(p.sIncUp)):0):N(p.sInc);
+    r.bal=i?prev.end:N(p.bal)+N(p.sBal);
+    r.int=r.bal*(before?pre:post);
+    r.u=i?(before?prev.u*(1+pc(p.savUp)):0):N(p.sav);
+    r.t=i?(beforeS?prev.t*(1+pc(p.sSavUp)):0):N(p.sSav);
+    r.sav=r.u+r.t;
+    r.des=after?rep*Math.pow(1+pc(p.incUp),ret-cur)*Math.pow(1+infl,age-ret):0;
+    const ssP=(after&&age>=62)?N(p.ss)*Math.pow(1+infl,age-61):0;
+    const ssS=(afterS&&sa>=62)?N(p.sSs)*Math.pow(1+infl,sa-61):0;
+    r.ss=ssP+ssS;
+    const pnP=after?N(p.pen)*Math.pow(1+pc(p.penUp),age-ret):0;
+    const pnS=afterS?N(p.sPen)*Math.pow(1+pc(p.sPenUp),age-sRet-cur+N(p.sAge)):0;
+    r.pen=pnP+pnS;
+    const need=r.des-r.ss-r.salS-r.pen,avail=r.bal+r.int;
+    r.used=need>=avail?avail:(r.des>0?need:0);
+    r.end=r.bal+r.int+r.sav-r.used;
+    r.oth=i?prev.othEnd:N(p.oth);
+    r.othInt=r.oth*(before?pre:post);
+    r.othUsed=need>=avail?(need<=r.othInt+r.oth?need-avail:r.othInt+r.oth):0;
+    r.othEnd=r.oth+r.othInt-r.othUsed;
+    r.home=N(p.home)*Math.pow(1+infl,age-cur+1);
+    r.nw=r.end+r.othEnd+r.home;
+    r.tot=r.home+r.othEnd;
+    rows.push(r);prev=r;
+  }
+  const last=rows[rows.length-1],ok=last.end>0;
+  const ret_=rows.filter(r=>r.age>=ret-1&&r.end>0).map(r=>r.end);
+  let failAge=cur;if(ret_.length){const m=Math.min(...ret_);failAge=rows.find(r=>r.age>=ret-1&&r.end===m).age}
+  return{rows,ok,lastAge:last.age,lastBal:last.end,failAge};
+}
+/*END*/
+const $=s=>document.querySelector(s);
+const money=v=>(Math.round(v)<0?'-':'')+'$'+Math.abs(Math.round(v)).toLocaleString('en-US');
+let st={...DEF},notes={},ch1=null,ch2=null;
+try{const s=JSON.parse(localStorage.getItem('rp_v1')||'null');if(s){st={...DEF,...s.st};notes=s.notes||{}}}catch(e){}
+const save=()=>{try{localStorage.setItem('rp_v1',JSON.stringify({st,notes}))}catch(e){}};
+function fld(f,two){
+  const [lab,k,t,k2]=f,box=(key)=>`<div class="${t==='$'||t==='%'?'u':''}"><input type="number" inputmode="decimal" step="any" data-k="${key}" value="${st[key]}" aria-label="${lab}${key===k2?' (spouse)':''}">${t==='%'?'<i>%</i>':t==='$'?'<i>$</i>':''}</div>`;
+  return `<div class="fld${two?'':' one'}"><span>${lab}</span>${box(k)}${two?(k2?box(k2):'<div></div>'):''}</div>`;
+}
+function build(){
+  $('#g1').innerHTML=`<div class="hd"><span></span><span>Primary</span><span>Spouse</span></div>`+G1.map(f=>fld(f,true)).join('');
+  $('#g2').innerHTML=`<div class="hd"><span></span><span>Primary</span><span>Spouse</span></div>`+G2.map(f=>fld(f,true)).join('');
+  $('#g3').innerHTML=G3.map(f=>fld(f,false)).join('');
+  document.querySelectorAll('input[data-k]').forEach(el=>el.addEventListener('input',()=>{st[el.dataset.k]=el.value===''?0:+el.value;save();update()}));
+}
+const COLS=['Age','Salary','Balance','Interest','Yearly savings','Desired retirement income','Social Security','Pension income','Saving needed','Year ending balance','Other assets','Net worth','Notes'];
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function update(){
+  const m=calc(st),R=m.rows;
+  const b=$('#banner');b.className='banner '+(m.ok?'ok':'bad');
+  b.textContent=m.ok?`CONGRATULATIONS! At age ${m.lastAge}, you will have a Retirement balance of ${money(m.lastBal)}.`:`OOPS! Your Retirement saving will only provide income up to age ${m.failAge}. You'll need to make adjustments.`;
+  $('#th').innerHTML=COLS.map(c=>`<th>${c}</th>`).join('');
+  $('#tb').innerHTML=R.map(r=>`<tr class="${r.age>=st.ret?'ret':''}"><td>${r.age}</td>${[r.sal+r.salS,r.bal,r.int,r.sav,r.des,r.ss,r.pen,r.used,r.end,r.oth,r.nw].map((v,i)=>`<td class="${i===8&&v<=0?'neg':''}">${money(v)}</td>`).join('')}<td class="nt"><input type="text" data-n="${r.age}" value="${(notes[r.age]||'').replace(/"/g,'&quot;')}" aria-label="Note for age ${r.age}"></td></tr>`).join('');
+  document.querySelectorAll('input[data-n]').forEach(el=>el.addEventListener('input',()=>{notes[el.dataset.n]=el.value;save()}));
+  draw(R);
+}
+function draw(R){
+  if(!window.Chart)return;
+  const incR=$('#incRet').checked,incO=$('#incOth').checked,k=v=>Math.round(v/1000);
+  const L=R.map(r=>r.age),tx=css('--mu'),gr=css('--bd');
+  const base={responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom',labels:{color:tx,boxWidth:12}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: $${c.parsed.y.toLocaleString('en-US')}K`}}},
+    scales:{x:{stacked:true,ticks:{color:tx,maxTicksLimit:12},grid:{display:false}},y:{stacked:true,ticks:{color:tx,callback:v=>'$'+v+'K'},grid:{color:gr}}}};
+  const ds1=[];
+  if(incR)ds1.push({type:'line',label:'Retirement savings',data:R.map(r=>k(r.end)),fill:true,backgroundColor:css('--c1')+'99',borderColor:css('--c1'),pointRadius:0,stack:'a',order:2});
+  if(incO)ds1.push({type:'line',label:'Other assets (investments + home)',data:R.map(r=>k(r.tot)),fill:true,backgroundColor:css('--c2')+'99',borderColor:css('--c2'),pointRadius:0,stack:'a',order:2});
+  if(incO)ds1.push({type:'line',label:'Net worth',data:R.map(r=>k(r.nw)),borderColor:css('--c3'),borderWidth:2.5,pointRadius:0,stack:'nw',order:1});
+  const ds2=[
+    {type:'bar',label:'Social Security',data:R.map(r=>k(r.ss)),backgroundColor:css('--c4'),stack:'i',order:2},
+    {type:'bar',label:'Pension',data:R.map(r=>k(r.pen)),backgroundColor:css('--c2'),stack:'i',order:2},
+    {type:'bar',label:'Savings used',data:R.map(r=>k(Math.max(0,r.used))),backgroundColor:css('--c1'),stack:'i',order:2},
+    {type:'bar',label:'Other investments used',data:R.map(r=>k(r.othUsed)),backgroundColor:css('--c5'),stack:'i',order:2},
+    {type:'line',label:'Salary (household)',data:R.map(r=>k(r.sal+r.salS)),borderColor:css('--c3'),borderWidth:2.5,pointRadius:0,stack:'s',order:1}];
+  if(ch1)ch1.destroy();if(ch2)ch2.destroy();
+  ch1=new Chart($('#c1'),{data:{labels:L,datasets:ds1},options:base});
+  ch2=new Chart($('#c2'),{data:{labels:L,datasets:ds2},options:base});
+}
+build();update();
+['#incRet','#incOth'].forEach(s=>$(s).addEventListener('change',()=>draw(calc(st).rows)));
+$('#reset').addEventListener('click',()=>{if(confirm('Reset all inputs to the starting values?')){st={...DEF};notes={};save();build();update()}});
+document.querySelectorAll('[data-pm]').forEach(b=>b.addEventListener('click',()=>{document.body.dataset.print=b.dataset.pm;window.print()}));
+let prevTheme=null;const root=document.documentElement;
+window.addEventListener('beforeprint',()=>{
+  prevTheme=root.getAttribute('data-theme');root.setAttribute('data-theme','light');
+  $('#pt').textContent='Retirement Planner \u2013 '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  $('#pg').textContent=document.body.dataset.print==='charts'?'@page{size:portrait;margin:12mm}':'@page{size:landscape;margin:12mm}';
+  draw(calc(st).rows);
+});
+window.addEventListener('afterprint',()=>{
+  if(prevTheme===null)root.removeAttribute('data-theme');else root.setAttribute('data-theme',prevTheme);
+  delete document.body.dataset.print;draw(calc(st).rows);
+});
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>draw(calc(st).rows));
+</script></body></html>
